@@ -4,6 +4,7 @@ import axios from "axios";
 import Skeleton from "../UI/Skeleton";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { enrichWithAuthorData, topSellersUrl } from "../../utils/authorUtils";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -18,11 +19,12 @@ const NewItems = () => {
   useEffect(() => {
     async function getNewItems() {
       try {
-        const response = await axios.get(
-          "https://us-central1-nft-cloud-functions.cloudfunctions.net/newItems"
-           );
+        const [itemsResponse, sellersResponse] = await Promise.all([
+          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/newItems"),
+          axios.get(topSellersUrl),
+        ]);
 
-        setItems(response.data);
+        setItems(enrichWithAuthorData(itemsResponse.data, sellersResponse.data));
       } catch (error) {
         console.error("New items API error:", error);
         setError(error.message);
