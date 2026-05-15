@@ -4,6 +4,7 @@ import EthImage from "../images/ethereum.svg";
 import { Link, useLocation, useParams } from "react-router-dom";
 import AuthorImage from "../images/author_thumbnail.jpg";
 import nftImage from "../images/nftImage.jpg";
+import { enrichWithAuthorData, topSellersUrl } from "../utils/authorUtils";
 
 const ItemDetails = () => {
   const location = useLocation();
@@ -27,15 +28,16 @@ const ItemDetails = () => {
       }
 
       try {
-        const [newItemsResponse, hotCollectionsResponse] = await Promise.all([
+        const [newItemsResponse, hotCollectionsResponse, sellersResponse] = await Promise.all([
           axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/newItems"),
           axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/hotCollections"),
+          axios.get(topSellersUrl),
         ]);
 
-        const allItems = [
+        const allItems = enrichWithAuthorData([
           ...newItemsResponse.data,
           ...hotCollectionsResponse.data,
-        ];
+        ], sellersResponse.data);
         const matchedItem = allItems.find(item => String(item.id) === id);
 
         setItem(matchedItem);

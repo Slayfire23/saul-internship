@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Skeleton from "../UI/Skeleton";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { enrichWithAuthorData, topSellersUrl } from "../../utils/authorUtils";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -16,11 +17,12 @@ const HotCollections = () => {
   useEffect(() => {
     async function getHotCollections() {
       try {
-        const response = await axios.get(
-          "https://us-central1-nft-cloud-functions.cloudfunctions.net/hotCollections"
-        );
+        const [collectionsResponse, sellersResponse] = await Promise.all([
+          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/hotCollections"),
+          axios.get(topSellersUrl),
+        ]);
 
-        setCollections(response.data);
+        setCollections(enrichWithAuthorData(collectionsResponse.data, sellersResponse.data));
       } catch (error) {
         console.error("Hot collections API error:", error);
         setError(error.message);

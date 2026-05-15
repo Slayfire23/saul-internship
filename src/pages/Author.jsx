@@ -1,15 +1,81 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import AuthorBanner from "../images/author_banner.jpg";
 import AuthorItems from "../components/author/AuthorItems";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import AuthorImage from "../images/author_thumbnail.jpg";
+import { enrichWithAuthorData, topSellersUrl } from "../utils/authorUtils";
 
 const Author = () => {
   const location = useLocation();
-  const author = location.state?.author;
+  const { id } = useParams();
+  const [author, setAuthor] = useState(location.state?.author);
+  const [authorItems, setAuthorItems] = useState([]);
+  const [itemsLoading, setItemsLoading] = useState(true);
+
+  useEffect(() => {
+    async function getAuthor() {
+      if (location.state?.author) {
+        setAuthor(location.state.author);
+        return;
+      }
+
+      if (!id) {
+        return;
+      }
+
+      try {
+        const response = await axios.get(topSellersUrl);
+        const matchingAuthor = response.data.find(seller => String(seller.authorId) === id);
+
+        setAuthor(matchingAuthor);
+      } catch (error) {
+        console.error("Author API error:", error);
+      }
+    }
+
+    getAuthor();
+  }, [id, location.state]);
+
+  useEffect(() => {
+    async function getAuthorItems() {
+      const authorId = author?.authorId || id;
+
+      if (!authorId) {
+        setItemsLoading(false);
+        return;
+      }
+
+      try {
+        setItemsLoading(true);
+        const [newItemsResponse, hotCollectionsResponse, sellersResponse] = await Promise.all([
+          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/newItems"),
+          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/hotCollections"),
+          axios.get(topSellersUrl),
+        ]);
+
+        const allItems = enrichWithAuthorData([
+          ...newItemsResponse.data,
+          ...hotCollectionsResponse.data,
+        ], sellersResponse.data);
+
+        setAuthorItems(
+          allItems.filter(item => String(item.authorId) === String(authorId))
+        );
+      } catch (error) {
+        console.error("Author items API error:", error);
+      } finally {
+        setItemsLoading(false);
+      }
+    }
+
+    getAuthorItems();
+  }, [author?.authorId, id]);
+
   const authorName = author?.authorName || (author?.authorId ? `Author #${author.authorId}` : "Monica Lucas");
   const authorImage = author?.authorImage || AuthorImage;
   const authorUsername = `@${authorName.toLowerCase().replaceAll(" ", "")}`;
+  const bannerImage = authorItems[0]?.nftImage || AuthorBanner;
 
   return (
     <div id="wrapper">
@@ -21,7 +87,7 @@ const Author = () => {
           aria-label="section"
           className="text-light"
           data-bgimage="url(images/author_banner.jpg) top"
-          style={{ background: `url(${AuthorBanner}) top` }}
+          style={{ background: `url(${bannerImage}) center / cover` }}
         ></section>
 
         <section aria-label="section">
@@ -61,7 +127,7 @@ const Author = () => {
 
               <div className="col-md-12">
                 <div className="de_tab tab_simple">
-                  <AuthorItems author={author} />
+                  <AuthorItems author={author} items={authorItems} loading={itemsLoading} />
                 </div>
               </div>
             </div>
