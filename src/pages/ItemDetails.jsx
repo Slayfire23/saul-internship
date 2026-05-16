@@ -124,14 +124,14 @@ const ItemDetails = () => {
         <section aria-label="section" className="mt90 sm-mt-0">
           <div className="container">
             <div className="row">
-              <div className="col-md-6 text-center">
+              <div className="col-md-6 text-center" data-aos="fade-up">
                 <img
                   src={itemImage}
                   className="img-fluid img-rounded mb-sm-30 nft-image"
                   alt=""
                 />
               </div>
-              <div className="col-md-6">
+              <div className="col-md-6" data-aos="fade-down" data-aos-delay="150">
                 <div className="item_info">
                   <h2>{itemTitle}</h2>
 

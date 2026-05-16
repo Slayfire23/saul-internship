@@ -12,7 +12,12 @@ const AuthorItems = ({ author, items = [], loading }) => {
       <div className="tab-1">
         <div className="row">
           {displayItems.map((item, index) => (
-            <div className="col-lg-3 col-md-6 col-sm-6 col-xs-12" key={item?.cardId || item?.id || index}>
+            <div
+              className="col-lg-3 col-md-6 col-sm-6 col-xs-12"
+              key={item?.cardId || item?.id || index}
+              data-aos="fade-up"
+              data-aos-delay={(index % 4) * 75}
+            >
               {loading ? (
                 <div className="nft__item">
                   <div className="author_list_pp">

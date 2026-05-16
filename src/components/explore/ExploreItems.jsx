@@ -97,6 +97,8 @@ const ExploreItems = () => {
           key={index}
           className="d-item col-lg-3 col-md-6 col-sm-6 col-xs-12"
           style={{ display: "block", backgroundSize: "cover" }}
+          data-aos="fade-up"
+          data-aos-delay={(index % 4) * 75}
         >
           <div className="nft__item">
             <div className="author_list_pp">
@@ -118,6 +120,8 @@ const ExploreItems = () => {
           key={item.id}
           className="d-item col-lg-3 col-md-6 col-sm-6 col-xs-12"
           style={{ display: "block", backgroundSize: "cover" }}
+          data-aos="fade-up"
+          data-aos-delay={(visibleItems.indexOf(item) % 4) * 75}
         >
           <div className="nft__item">
             <div className="author_list_pp">

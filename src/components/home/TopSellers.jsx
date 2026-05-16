@@ -34,17 +34,17 @@ const TopSellers = () => {
     <section id="section-popular" className="pb-5">
       <div className="container">
         <div className="row">
-          <div className="col-lg-12">
+          <div className="col-lg-12" data-aos="fade-down">
             <div className="text-center">
               <h2>Top Sellers</h2>
               <div className="small-border bg-color-2"></div>
             </div>
           </div>
-          <div className="col-md-12">
+          <div className="col-md-12" data-aos="fade-up">
             {error && <p>API error: {error}</p>}
             <ol className="author_list">
               {loading && new Array(12).fill(0).map((_, index) => (
-                <li key={index}>
+                <li key={index} data-aos="fade-up" data-aos-delay={(index % 4) * 75}>
                   <div className="author_list_pp">
                     <Skeleton width="50px" height="50px" borderRadius="50%" />
                   </div>
