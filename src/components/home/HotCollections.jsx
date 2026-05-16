@@ -38,7 +38,7 @@ const HotCollections = () => {
     <section id="section-collections" className="no-bottom">
       <div className="container">
         <div className="row">
-          <div className="col-lg-12">
+          <div className="col-lg-12" data-aos="fade-down">
             <div className="text-center">
               <h2>Hot Collections</h2>
               <div className="small-border bg-color-2"></div>
@@ -46,6 +46,7 @@ const HotCollections = () => {
           </div>
           {error && <p>API error: {error}</p>}
           <Swiper
+            data-aos="fade-up"
             modules={[Navigation, Pagination]}
             spaceBetween={20}
             slidesPerView={4}

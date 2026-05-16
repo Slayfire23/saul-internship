@@ -135,6 +135,7 @@ const Author = () => {
           aria-label="section"
           className="text-light"
           data-bgimage="url(images/author_banner.jpg) top"
+          data-aos="fade-down"
           style={{
             background: itemsLoading
               ? "linear-gradient(90deg, #eeeeee 25%, #f7f7f7 50%, #eeeeee 75%)"
@@ -146,7 +147,7 @@ const Author = () => {
           <div className="container">
             <div className="row">
               <div className="col-md-12">
-                <div className="d_profile de-flex">
+                <div className="d_profile de-flex" data-aos="fade-up">
                   <div className="de-flex-col">
                     <div className="profile_avatar">
                       {itemsLoading ? (
@@ -199,7 +200,7 @@ const Author = () => {
               </div>
 
               <div className="col-md-12">
-                <div className="de_tab tab_simple">
+                <div className="de_tab tab_simple" data-aos="fade-up">
                   <AuthorItems author={author} items={authorItems} loading={itemsLoading} />
                 </div>
               </div>
