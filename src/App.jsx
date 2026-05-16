@@ -1,5 +1,5 @@
 import Home from "./pages/Home";
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import AOS from "aos";
 import Explore from "./pages/Explore";
