@@ -21,8 +21,6 @@ const ExploreItems = () => {
           axios.get(topSellersUrl),
         ]);
 
-        console.log("API data:", exploreItemsResponse.data);
-
         setExploreItems(enrichWithAuthorData(exploreItemsResponse.data, sellersResponse.data));
       } catch (error) {
         console.error("New items API error:", error);
