@@ -4,7 +4,17 @@ import EthImage from "../images/ethereum.svg";
 import { Link, useLocation, useParams } from "react-router-dom";
 import AuthorImage from "../images/author_thumbnail.jpg";
 import nftImage from "../images/nftImage.jpg";
-import { enrichWithAuthorData, getAuthorUrl, topSellersUrl } from "../utils/authorUtils";
+import { enrichWithAuthorData, getAuthorUrl, getItemDetailsUrl, topSellersUrl } from "../utils/authorUtils";
+
+function normalizeItemDetails(details) {
+  return {
+    ...details,
+    authorId: details.creatorId,
+    authorName: details.creatorName,
+    authorImage: details.creatorImage,
+    code: details.tag,
+  };
+}
 
 const ItemDetails = () => {
   const location = useLocation();
@@ -32,29 +42,47 @@ const ItemDetails = () => {
 
   useEffect(() => {
     async function getItemDetails() {
+      let currentItem = selectedItem;
+      let nftId = selectedItem?.nftId;
+
       if (selectedItem) {
         setItem(selectedItem);
-        return;
       }
 
-      if (!id) {
+      if (!nftId && !id) {
         return;
       }
 
       try {
-        const [newItemsResponse, hotCollectionsResponse, sellersResponse] = await Promise.all([
-          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/newItems"),
-          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/hotCollections"),
-          axios.get(topSellersUrl),
-        ]);
+        if (!nftId) {
+          const [newItemsResponse, hotCollectionsResponse, exploreResponse, sellersResponse] = await Promise.all([
+            axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/newItems"),
+            axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/hotCollections"),
+            axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/explore"),
+            axios.get(topSellersUrl),
+          ]);
 
-        const allItems = enrichWithAuthorData([
-          ...newItemsResponse.data,
-          ...hotCollectionsResponse.data,
-        ], sellersResponse.data);
-        const matchedItem = allItems.find(item => String(item.id) === id);
+          const allItems = enrichWithAuthorData([
+            ...newItemsResponse.data,
+            ...hotCollectionsResponse.data,
+            ...exploreResponse.data,
+          ], sellersResponse.data);
+          const matchedItem = allItems.find(item => String(item.id) === id || String(item.nftId) === id);
 
-        setItem(matchedItem);
+          currentItem = matchedItem;
+          nftId = matchedItem?.nftId;
+          setItem(matchedItem);
+        }
+
+        if (nftId) {
+          const detailsResponse = await axios.get(getItemDetailsUrl(nftId));
+          const detailsItem = normalizeItemDetails(detailsResponse.data);
+
+          setItem({
+            ...currentItem,
+            ...detailsItem,
+          });
+        }
       } catch (error) {
         console.error("Item details API error:", error);
       }
@@ -70,6 +98,10 @@ const ItemDetails = () => {
   const itemCode = item?.code || "192";
   const itemPrice = item?.price || "1.85";
   const itemLikes = item?.likes || 74;
+  const itemViews = item?.views || 100;
+  const itemDescription =
+    item?.description ||
+    "doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.";
   const authorPath = item
     ? `/author/${item.authorId || item.id}`
     : "/author";
@@ -106,18 +138,14 @@ const ItemDetails = () => {
                   <div className="item_info_counts">
                     <div className="item_info_views">
                       <i className="fa fa-eye"></i>
-                      100
+                      {itemViews}
                     </div>
                     <div className="item_info_like">
                       <i className="fa fa-heart"></i>
                       {itemLikes}
                     </div>
                   </div>
-                  <p>
-                    doloremque laudantium, totam rem aperiam, eaque ipsa quae ab
-                    illo inventore veritatis et quasi architecto beatae vitae
-                    dicta sunt explicabo.
-                  </p>
+                  <p>{itemDescription}</p>
                   <p>ERC-{itemCode}</p>
                   <div className="d-flex flex-row">
                     <div className="mr40">
