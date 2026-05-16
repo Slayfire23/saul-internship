@@ -4,16 +4,30 @@ import EthImage from "../images/ethereum.svg";
 import { Link, useLocation, useParams } from "react-router-dom";
 import AuthorImage from "../images/author_thumbnail.jpg";
 import nftImage from "../images/nftImage.jpg";
-import { enrichWithAuthorData, topSellersUrl } from "../utils/authorUtils";
+import { enrichWithAuthorData, getAuthorUrl, topSellersUrl } from "../utils/authorUtils";
 
 const ItemDetails = () => {
   const location = useLocation();
   const { id } = useParams();
   const selectedItem = location.state?.collection || location.state?.item;
   const [item, setItem] = useState(selectedItem);
+  const [owner, setOwner] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    async function getOwner() {
+      try {
+        const response = await axios.get(getAuthorUrl(73855012));
+        setOwner(response.data);
+      } catch (error) {
+        console.error("Owner API error:", error);
+      }
+    }
+
+    getOwner();
   }, []);
 
   useEffect(() => {
@@ -59,6 +73,17 @@ const ItemDetails = () => {
   const authorPath = item
     ? `/author/${item.authorId || item.id}`
     : "/author";
+  const ownerName = item?.ownerName || owner?.authorName || "Lori Hart";
+  const ownerImage = item?.ownerImage || owner?.authorImage || AuthorImage;
+  const ownerId = item?.ownerId || owner?.authorId;
+  const ownerPath = ownerId ? `/author/${ownerId}` : "/author";
+  const ownerState = item?.ownerName
+    ? {
+        authorName: item.ownerName,
+        authorImage: item.ownerImage,
+        authorId: item.ownerId,
+      }
+    : owner;
 
   return (
     <div id="wrapper">
@@ -99,13 +124,13 @@ const ItemDetails = () => {
                       <h6>Owner</h6>
                       <div className="item_author">
                         <div className="author_list_pp">
-                          <Link to={authorPath} state={{ author: item }}>
-                            <img className="lazy" src={itemAuthorImage} alt="" />
+                          <Link to={ownerPath} state={{ author: ownerState }}>
+                            <img className="lazy" src={ownerImage} alt="" />
                             <i className="fa fa-check"></i>
                           </Link>
                         </div>
                         <div className="author_list_info">
-                          <Link to={authorPath} state={{ author: item }}>{itemAuthor}</Link>
+                          <Link to={ownerPath} state={{ author: ownerState }}>{ownerName}</Link>
                         </div>
                       </div>
                     </div>
