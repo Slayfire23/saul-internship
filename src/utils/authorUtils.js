@@ -1,6 +1,10 @@
 export const topSellersUrl =
   "https://us-central1-nft-cloud-functions.cloudfunctions.net/topSellers";
 
+export function getAuthorUrl(authorId) {
+  return `https://us-central1-nft-cloud-functions.cloudfunctions.net/authors?author=${authorId}`;
+}
+
 export function enrichWithAuthorData(items, sellers) {
   const sellersByAuthorId = sellers.reduce((authorMap, seller) => {
     authorMap[seller.authorId] = seller;
